@@ -5,7 +5,7 @@
 | Element      | Widget              | Description                              |
 | ------------ | ------------------- | ---------------------------------------- |
 | Album Art    | `lv_img`            | Show a **rotating** image (album cover)        |
-| Song Title   | `lv_label`          | Large bold font **chyron** (e.g., “Night Sky”)      |
+| Song Title  (Done)| `lv_label`          | Large bold font **chyron** (e.g., “Night Sky”)      |
 | Artist Name  | `lv_label`          | Smaller gray text below title            |
 | Progress Bar (Done) | `lv_slider`         | Show playback progress                   |
 | Time labels (Done) | `lv_label`          | “0:00” and “3:45” at both ends of slider |
