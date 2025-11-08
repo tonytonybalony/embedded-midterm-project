@@ -37,7 +37,9 @@ Sequence of UI features implemented (see `lvgl/examples/mainfunction.c`):
 6. Improve Progress Bar (Slider): (I found some time will not be displayed in the progress bar)
   - Set the slider range to 1000, allow every second in the slider can be shown.
   - Modify the converting code of slider event
-7.
+7. Button Event:
+  - Next and prev will now send the progress bar to 0, also update the time label.
+  - Pause will change the opacity of the indicator.
 8.
 
 
