@@ -21,25 +21,39 @@
 Sequence of UI features implemented (see `lvgl/examples/mainfunction.c`):
 
 1. Gradient Background:
-	- Create a Radial Gradient Background with white center to grey edge.
+
+  - Create a Radial Gradient Background with white center to grey edge.
+
 2. Time Labels:
+
   - Convert the time label into mm:ss format in slider event.
   - Set the time label on the left side under the progress bar. And the total time at the right side under the progress bar.
+
 3. Progress Bar (Slider):
-	- Change the color of track into medium gray and indicator into light gray.
-	- Hide the knob by reducing its opacity.
+
+  - Change the color of track into medium gray and indicator into light gray.
+  - Hide the knob by reducing its opacity.
+
 4. Control Buttons:
-	- Added Prev / Pause / Next buttons under the slider.
-	- Styled the normal button into circular shape, transparent background, and no border.
+
+  - Added Prev / Pause / Next buttons under the slider.
+  - Styled the normal button into circular shape, transparent background, and no border.
   - Cover the styled buttons with icon's png transfered C code.
+
 5. Customize Cursor:
+
   - Add my own cursor by transfering the cursor icon from png into c code online with format `ARGB888` which allows opacity, and replace the cursors source file.
+
 6. Improve Progress Bar (Slider): (I found some time will not be displayed in the progress bar)
   - Set the slider range to 1000, allow every second in the slider can be shown.
   - Modify the converting code of slider event
+
+
 7. Button Event:
+
   - Next and prev will now send the progress bar to 0, also update the time label.
   - Pause will change the opacity of the indicator.
+
 8.
 
 
