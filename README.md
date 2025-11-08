@@ -54,8 +54,13 @@ Sequence of UI features implemented (see `lvgl/examples/mainfunction.c`):
   - Next and prev will now send the progress bar to 0, also update the time label.
   - Pause will change the opacity of the indicator.
 
-8.
+8. Song Title Ticker
 
+  - If the song title string is longer than the slider box, it will loop like a ticker.
+  - Next and Pause will reset the song title ticker.
+  - 8 seconds between each loop.
+
+9.
 
 
 ## Next Enhancements (Ideas)

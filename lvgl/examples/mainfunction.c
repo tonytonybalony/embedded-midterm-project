@@ -41,12 +41,56 @@ void radial_gradient_background(void)
     lv_obj_center(obj);
 }
 
+
+
+
 static void slider_event_cb(lv_event_t * e);
 static lv_obj_t * slider_label;
 static lv_obj_t * slider_label2;
 static lv_obj_t * g_slider;          /* store slider for button control */
+static lv_obj_t * song_ticker;   /* container */
+static lv_obj_t * song_label;    /* text */
+
 static bool is_paused = false;       /* simple pause state */
 
+
+
+static void start_song_ticker(void)
+{
+    /* Ensure sizes are computed */
+    lv_obj_update_layout(song_ticker);
+
+    int w_text = lv_obj_get_width(song_label);
+    int w_view = lv_obj_get_width(song_ticker);
+
+    if(w_text <= w_view) {
+        lv_obj_set_x(song_label, 0);
+        return;
+    }
+
+    lv_obj_set_x(song_label, 0);
+    lv_anim_del(song_label, (lv_anim_exec_xcb_t)lv_obj_set_x);
+
+    lv_anim_t a;
+    lv_anim_init(&a);
+    lv_anim_set_var(&a, song_label);
+    lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t)lv_obj_set_x);
+    lv_anim_set_values(&a, 0, -(w_text - w_view + 8));  /* full travel with padding */
+    lv_anim_set_time(&a, 12000);                        /* slower = larger */
+    lv_anim_set_delay(&a, 3000);                        /* initial pause */
+    lv_anim_set_repeat_delay(&a, 5000);                 /* pause between loops */
+    lv_anim_set_path_cb(&a, lv_anim_path_linear);
+    lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
+    lv_anim_start(&a);
+}
+
+static void restart_song_title(const char * title)
+{
+    lv_anim_del(song_label, (lv_anim_exec_xcb_t)lv_obj_set_x);
+    if(title) lv_label_set_text(song_label, title);
+    lv_obj_set_x(song_label, 0);
+    start_song_ticker();
+}
 
 static void button_event_cb(lv_event_t * e)
 {
@@ -56,7 +100,8 @@ static void button_event_cb(lv_event_t * e)
     if(strcmp(tag, "prev") == 0) {
         lv_slider_set_value(g_slider, 0, LV_ANIM_OFF);
         lv_label_set_text(slider_label, "0:00");              /* reset time label */
-        LV_LOG_USER("Prev: slider reset to 0");
+        restart_song_title(NULL);               /* reset song title scroll */
+        LV_LOG_USER("Prev: slider + title reset");
     }
     else if(strcmp(tag, "pause") == 0) {
         is_paused = !is_paused;
@@ -66,7 +111,8 @@ static void button_event_cb(lv_event_t * e)
     else if(strcmp(tag, "next") == 0) {
         lv_slider_set_value(g_slider, 0, LV_ANIM_OFF);
         lv_label_set_text(slider_label, "0:00");              /* reset time label */
-        LV_LOG_USER("Next: slider reset to 0");
+        restart_song_title(NULL);              /* reset song title scroll */
+        LV_LOG_USER("Next: slider + title reset");
     }
 }
 
@@ -81,10 +127,33 @@ void progress_bar(void)
     lv_obj_t * slider = lv_slider_create(lv_screen_active());
     g_slider = slider; /* store globally for button events */
     lv_obj_set_pos(slider, 30, 300);
+    lv_obj_set_width(slider, 260);                 /* ensure non-zero width */
     lv_obj_add_event_cb(slider, slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
     lv_slider_set_range(slider, 0, 1000);
-
     lv_obj_set_style_anim_duration(slider, 2000, 0);
+
+
+
+    /* Ticker container */
+    song_ticker = lv_obj_create(lv_screen_active());
+    lv_obj_set_size(song_ticker, lv_obj_get_width(slider), LV_SIZE_CONTENT);
+    lv_obj_clear_flag(song_ticker, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_bg_opa(song_ticker, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_border_opa(song_ticker, LV_OPA_TRANSP, 0);
+    lv_obj_align_to(song_ticker, slider, LV_ALIGN_OUT_TOP_MID, 0, -12);
+
+    /* Song title label */
+    song_label = lv_label_create(song_ticker);
+    lv_obj_set_width(song_label, LV_SIZE_CONTENT);            /* expand to text width */
+    lv_label_set_long_mode(song_label, LV_LABEL_LONG_CLIP);   /* single line, no wrap */
+    lv_label_set_text(song_label, "dodger blue - (feat. Wallie the Sensei, Siete7x & Roddy Ricch)  ");
+    lv_obj_align(song_label, LV_ALIGN_LEFT_MID, 0, 0);
+
+    /* Start ticker after label width is known */
+    start_song_ticker();
+
+
+
 
     /* Set slider background (track) to medium grey */
     lv_obj_set_style_bg_color(slider, lv_color_hex(0x999999), LV_PART_MAIN);
