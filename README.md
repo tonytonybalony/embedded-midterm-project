@@ -60,7 +60,10 @@ Sequence of UI features implemented (see `lvgl/examples/mainfunction.c`):
   - Next and Pause will reset the song title ticker.
   - 8 seconds between each loop.
 
-9.
+9. Improve overall UI
+
+  - Radial Gradient Background extend with the window
+  - Progress bar and all the label and buttons stay at center no matter how the window is resized.
 
 
 ## Next Enhancements (Ideas)

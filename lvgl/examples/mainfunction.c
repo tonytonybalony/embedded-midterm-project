@@ -10,6 +10,8 @@ LV_IMG_DECLARE(previous);
 /**
  * Using radial gradient as background
  */
+
+/*
 void radial_gradient_background(void)
 {
     static const lv_color_t grad_colors[2] = {
@@ -23,25 +25,49 @@ void radial_gradient_background(void)
     static lv_style_t style;
     lv_style_init(&style);
 
-    /*First define a color gradient. I use a white to light gray color map.*/
+    //First define a color gradient. I use a white to light gray color map.
     static lv_grad_dsc_t grad;
 
     lv_grad_init_stops(&grad, grad_colors, NULL, NULL, sizeof(grad_colors) / sizeof(lv_color_t));
 
-    /*Make a radial gradient with the center in the middle of the object, extending to the farthest corner*/
+    //Make a radial gradient with the center in the middle of the object, extending to the farthest corner.
     lv_grad_radial_init(&grad, LV_GRAD_CENTER, LV_GRAD_CENTER, LV_GRAD_RIGHT, LV_GRAD_BOTTOM, LV_GRAD_EXTEND_PAD);
 
-    /*Set gradient as background*/
+    //Set gradient as background
     lv_style_set_bg_grad(&style, &grad);
 
-    /*Create an object with the new style*/
+    //Create an object with the new style
     lv_obj_t * obj = lv_obj_create(lv_screen_active());
     lv_obj_add_style(obj, &style, 0);
     lv_obj_set_size(obj, width, height);
     lv_obj_center(obj);
 }
+*/
 
+void radial_gradient_background(void)
+{
+    static lv_style_t style;
+    static bool inited = false;
+    if(!inited) {
+        inited = true;
+        lv_style_init(&style);
 
+        static const lv_color_t grad_colors[2] = {
+            LV_COLOR_MAKE(0xEE, 0xEE, 0xEE),
+            LV_COLOR_MAKE(0x80, 0x80, 0x80),
+        };
+        static lv_grad_dsc_t grad;
+        lv_grad_init_stops(&grad, grad_colors, NULL, NULL, 2);
+        lv_grad_radial_init(&grad,
+                            LV_GRAD_CENTER, LV_GRAD_CENTER,
+                            LV_GRAD_RIGHT,  LV_GRAD_BOTTOM,
+                            LV_GRAD_EXTEND_PAD);
+        lv_style_set_bg_grad(&style, &grad);
+    }
+
+    lv_obj_t * scr = lv_screen_active();
+    lv_obj_add_style(scr, &style, 0); /* Apply style directly to the screen */
+}
 
 
 static void slider_event_cb(lv_event_t * e);
@@ -50,8 +76,37 @@ static lv_obj_t * slider_label2;
 static lv_obj_t * g_slider;          /* store slider for button control */
 static lv_obj_t * song_ticker;   /* container */
 static lv_obj_t * song_label;    /* text */
+static lv_obj_t * btn_prev;
+static lv_obj_t * btn_pause;
+static lv_obj_t * btn_next;
 
 static bool is_paused = false;       /* simple pause state */
+
+
+
+
+
+
+
+static lv_obj_t * slider;
+static void layout_update(void)
+{
+    if(slider)       lv_obj_align(slider, LV_ALIGN_BOTTOM_MID, 0, -120);
+    if(song_ticker && slider) lv_obj_align_to(song_ticker, slider, LV_ALIGN_OUT_TOP_MID, 0, -12);
+    if(slider_label && slider)  lv_obj_align_to(slider_label,  slider, LV_ALIGN_OUT_BOTTOM_LEFT, -10, 10);
+    if(slider_label2 && slider) lv_obj_align_to(slider_label2, slider, LV_ALIGN_OUT_BOTTOM_RIGHT, 10, 10);
+    if(btn_prev && slider)  lv_obj_align_to(btn_prev,  slider, LV_ALIGN_OUT_BOTTOM_LEFT, 10, 40);
+    if(btn_pause && slider) lv_obj_align_to(btn_pause, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 40);
+    if(btn_next && slider)  lv_obj_align_to(btn_next,  slider, LV_ALIGN_OUT_BOTTOM_RIGHT, -10, 40);
+}
+static void screen_resize_cb(lv_event_t * e)
+{
+    LV_UNUSED(e);
+    layout_update();
+}
+
+
+
 
 
 
@@ -124,13 +179,16 @@ static void button_event_cb(lv_event_t * e)
 void progress_bar(void)
 {
     /*Create a slider in the center of the display*/
-    lv_obj_t * slider = lv_slider_create(lv_screen_active());
-    g_slider = slider; /* store globally for button events */
-    lv_obj_set_pos(slider, 30, 300);
-    lv_obj_set_width(slider, 260);                 /* ensure non-zero width */
+
+    slider = lv_slider_create(lv_screen_active());
+    g_slider = slider;
+    lv_obj_set_width(slider, 260);
     lv_obj_add_event_cb(slider, slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
     lv_slider_set_range(slider, 0, 1000);
     lv_obj_set_style_anim_duration(slider, 2000, 0);
+
+
+
 
 
 
@@ -179,7 +237,7 @@ void progress_bar(void)
 
 
     /* Prev button */
-    lv_obj_t * btn_prev = lv_btn_create(lv_screen_active());
+    btn_prev = lv_btn_create(lv_screen_active());
     lv_obj_set_size(btn_prev, 50, 50);  /* Make it square first */
     lv_obj_align_to(btn_prev, slider, LV_ALIGN_OUT_BOTTOM_LEFT, 10, 40);
     lv_obj_add_event_cb(btn_prev, button_event_cb, LV_EVENT_CLICKED, (void*)"prev");
@@ -193,7 +251,7 @@ void progress_bar(void)
     lv_obj_center(img_prev);
 
     /* Pause button (center) */
-    lv_obj_t * btn_pause = lv_btn_create(lv_screen_active());
+    btn_pause = lv_btn_create(lv_screen_active());
     lv_obj_set_size(btn_pause, 50, 50);  /* Make it square */
     lv_obj_align_to(btn_pause, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 40);
     lv_obj_add_event_cb(btn_pause, button_event_cb, LV_EVENT_CLICKED, (void*)"pause");
@@ -207,7 +265,7 @@ void progress_bar(void)
     lv_obj_center(img_pause);
 
     /* Next button */
-    lv_obj_t * btn_next = lv_btn_create(lv_screen_active());
+    btn_next = lv_btn_create(lv_screen_active());
     lv_obj_set_size(btn_next, 50, 50);  /* Make it square */
     lv_obj_align_to(btn_next, slider, LV_ALIGN_OUT_BOTTOM_RIGHT, -10, 40);
     lv_obj_add_event_cb(btn_next, button_event_cb, LV_EVENT_CLICKED, (void*)"next");
@@ -219,6 +277,20 @@ void progress_bar(void)
     lv_obj_t * img_next = lv_img_create(btn_next);
     lv_img_set_src(img_next, &next);
     lv_obj_center(img_next);
+
+
+
+
+
+    /* Add resize event once */
+    static bool resize_evt_added = false;
+    if(!resize_evt_added) {
+        resize_evt_added = true;
+        lv_obj_add_event_cb(lv_screen_active(), screen_resize_cb, LV_EVENT_SIZE_CHANGED, NULL);
+    }
+
+    /* After creating all related objects call: */
+    layout_update();
 }
 
 static void slider_event_cb(lv_event_t * e)
