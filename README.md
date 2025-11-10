@@ -65,11 +65,13 @@ Sequence of UI features implemented (see `lvgl/examples/mainfunction.c`):
   - Radial Gradient Background extend with the window
   - Progress bar and all the label and buttons stay at center no matter how the window is resized.
 
+10. Improve Code
+
+  - Reorder function and add new comment.
+
 
 ## Next Enhancements (Ideas)
 
 - Rotating album art (`lv_img` with animation).
-- Button state change (pause vs play image swap).
+- Button state change (pause vs play image swap). Using toggle button
 - Track queue scroll effect ("Translate on Scroll" idea above).
-- Font improvements: add emoji-capable / CJK font fallback.
-- Optional volume slider and mute toggle.
