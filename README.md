@@ -82,3 +82,7 @@ Sequence of UI features implemented (see `lvgl/examples/mainfunction.c`):
 14. Chinese song title and artist name:
 
   - Allow Chinese song title and Artist name.
+
+15. Final Commit?
+
+  - Optimize and make code cleaner, and add more comment

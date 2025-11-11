@@ -59,6 +59,7 @@ void lv_example_style_17(void)
     lv_obj_set_size(obj, width, height);
     lv_obj_center(obj);
 }
+
 */
 
 
@@ -67,9 +68,7 @@ void lv_example_style_17(void)
 
 static void slider_event_cb(lv_event_t * e);
 static lv_obj_t * slider_label;
-
 // A default slider with a label displaying the current value
-
 void lv_example_slider_1(void)
 {
     //Create a slider in the center of the display
@@ -93,23 +92,96 @@ static void slider_event_cb(lv_event_t * e)
     lv_label_set_text(slider_label, buf);
     lv_obj_align_to(slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
 }
-*/
-
-
-
-/*
 
 */
 
 
 
+/*  CLICK AND TOGGLE BUTTON EXAMPLE FUNCTION
 
+static void event_handler(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
 
+    if(code == LV_EVENT_CLICKED) {
+        LV_LOG_USER("Clicked");
+    }
+    else if(code == LV_EVENT_VALUE_CHANGED) {
+        LV_LOG_USER("Toggled");
+    }
+}
 
+void lv_example_button_1(void)
+{
+    lv_obj_t * label;
 
+    lv_obj_t * btn1 = lv_button_create(lv_screen_active());
+    lv_obj_add_event_cb(btn1, event_handler, LV_EVENT_ALL, NULL);
+    lv_obj_align(btn1, LV_ALIGN_CENTER, 0, -40);
+    lv_obj_remove_flag(btn1, LV_OBJ_FLAG_PRESS_LOCK);
 
+    label = lv_label_create(btn1);
+    lv_label_set_text(label, "Button");
+    lv_obj_center(label);
 
+    lv_obj_t * btn2 = lv_button_create(lv_screen_active());
+    lv_obj_add_event_cb(btn2, event_handler, LV_EVENT_ALL, NULL);
+    lv_obj_align(btn2, LV_ALIGN_CENTER, 0, 40);
+    lv_obj_add_flag(btn2, LV_OBJ_FLAG_CHECKABLE);
+    lv_obj_set_height(btn2, LV_SIZE_CONTENT);
 
+    label = lv_label_create(btn2);
+    lv_label_set_text(label, "Toggle");
+    lv_obj_center(label);
+
+}
+
+*/
+
+/*  STYLE WITH OPACITY AND TRANSFORMATIONS EXAMPLE FUNCTION
+
+void lv_example_style_15(void)
+{
+    lv_obj_t * btn;
+    lv_obj_t * label;
+
+    // Normal button
+    btn = lv_button_create(lv_screen_active());
+    lv_obj_set_size(btn, 100, 40);
+    lv_obj_align(btn, LV_ALIGN_CENTER, 0, -70);
+
+    label = lv_label_create(btn);
+    lv_label_set_text(label, "Normal");
+    lv_obj_center(label);
+
+    // Set opacity
+    // The button and the label is rendered to a layer first and that layer is blended
+    btn = lv_button_create(lv_screen_active());
+    lv_obj_set_size(btn, 100, 40);
+    lv_obj_set_style_opa(btn, LV_OPA_50, 0);
+    lv_obj_align(btn, LV_ALIGN_CENTER, 0, 0);
+
+    label = lv_label_create(btn);
+    lv_label_set_text(label, "Opa:50%");
+    lv_obj_center(label);
+
+    // Set transformations
+    // The button and the label is rendered to a layer first and that layer is transformed
+    btn = lv_button_create(lv_screen_active());
+    lv_obj_set_size(btn, 100, 40);
+    lv_obj_set_style_transform_rotation(btn, 150, 0);        // 15 deg
+    lv_obj_set_style_transform_scale(btn, 256 + 64, 0);   // 1.25x
+    lv_obj_set_style_transform_pivot_x(btn, 50, 0);
+    lv_obj_set_style_transform_pivot_y(btn, 20, 0);
+    lv_obj_set_style_opa(btn, LV_OPA_50, 0);
+    lv_obj_align(btn, LV_ALIGN_CENTER, 0, 70);
+
+    label = lv_label_create(btn);
+    lv_label_set_text(label, "Transf.");
+    lv_obj_center(label);
+}
+
+*/
 
 
 /*//////////////////////////////////////////////////////////////////////
@@ -117,10 +189,6 @@ RADIAL GRADIENT BACKGROUND FUNCTION
 //////////////////////////////////////////////////////////////////////*/
 
 
-
-
-
-// My version
 void radial_gradient_background(void)
 {
     static const lv_color_t grad_colors[2] = {
@@ -166,8 +234,6 @@ static lv_obj_t * img_pause;
 static lv_obj_t * album_img;
 static bool is_paused = false;       // pause state
 
-
-
 // Timer Declarations
 static const int track_len_sec = 225;          // total length (3:45)
 static int elapsed_sec = 0;                    // elapsed seconds
@@ -176,12 +242,12 @@ static lv_timer_t * progress_timer;            // timer advancing progress
 
 
 
+// Layout update
 static void layout_update(void)
 {
     LV_LOG_INFO("Layout update called");
     if(slider)                      lv_obj_align(slider, LV_ALIGN_BOTTOM_MID, 0, -120);
     if(song_ticker && slider)       lv_obj_align_to(song_ticker, slider, LV_ALIGN_OUT_TOP_MID, 0, -12);
-    if(artist_label && song_ticker) lv_obj_align_to(artist_label, song_ticker, LV_ALIGN_OUT_BOTTOM_MID, 0, 4);
     if(slider_label && slider)      lv_obj_align_to(slider_label,  slider, LV_ALIGN_OUT_BOTTOM_LEFT, -10, 10);
     if(slider_label2 && slider)     lv_obj_align_to(slider_label2, slider, LV_ALIGN_OUT_BOTTOM_RIGHT, 10, 10);
     if(btn_prev && slider)          lv_obj_align_to(btn_prev,  slider, LV_ALIGN_OUT_BOTTOM_LEFT, 10, 40);
@@ -191,7 +257,10 @@ static void layout_update(void)
     if(artist_label && song_ticker) lv_obj_align_to(artist_label, song_ticker, LV_ALIGN_OUT_BOTTOM_LEFT, 0, -10);
 }
 
-// Hide/show album based on current display height
+
+
+
+// Hide or show album based on window height
 static void update_album_visibility(void)
 {
     if(!album_img) return;
@@ -203,6 +272,10 @@ static void update_album_visibility(void)
     }
 }
 
+
+
+
+// Get the resize event to update layout
 static void screen_resize_cb(lv_event_t * e)
 {
     LV_UNUSED(e);
@@ -213,8 +286,7 @@ static void screen_resize_cb(lv_event_t * e)
 
 
 
-
-
+// Start the song title ticker
 static void start_song_ticker(void)
 {
     // Ensure sizes are computed
@@ -236,7 +308,7 @@ static void start_song_ticker(void)
     lv_anim_set_var(&a, song_label);
     lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t)lv_obj_set_x);
     lv_anim_set_values(&a, 0, -(w_text - w_view + 8));  // full travel with padding
-    lv_anim_set_time(&a, 12000);                        // slower = larger
+    lv_anim_set_time(&a, 10000);                        // slower = larger
     lv_anim_set_delay(&a, 3000);                        // initial pause
     lv_anim_set_repeat_delay(&a, 5000);                 // pause between loops
     lv_anim_set_path_cb(&a, lv_anim_path_linear);
@@ -244,6 +316,10 @@ static void start_song_ticker(void)
     lv_anim_start(&a);
 }
 
+
+
+
+// Restart the song title ticker after pressing prev or next
 static void restart_song_title(const char * title)
 {
     lv_anim_del(song_label, (lv_anim_exec_xcb_t)lv_obj_set_x);
@@ -252,6 +328,10 @@ static void restart_song_title(const char * title)
     start_song_ticker();
 }
 
+
+
+
+// Update time labels based on seconds elapsed
 static void update_time_labels(int seconds)
 {
     if(slider_label) {
@@ -263,23 +343,27 @@ static void update_time_labels(int seconds)
     }
 }
 
+
+
+
+// Sync Slider with elapsed time every second, also restart timer when hitting the end.
 static void progress_timer_cb(lv_timer_t * t)
 {
     LV_UNUSED(t);
     if(is_paused) return;
-    if(elapsed_sec >= track_len_sec) return;
 
     elapsed_sec++;
+    if(elapsed_sec > track_len_sec) elapsed_sec = 0;
     int32_t vmax = lv_slider_get_max_value(g_slider);
     int32_t v = (int32_t)((int64_t)elapsed_sec * vmax / track_len_sec);
-    lv_slider_set_value(g_slider, v, LV_ANIM_OFF); // still fires VALUE_CHANGED
+    lv_slider_set_value(g_slider, v, LV_ANIM_OFF);
     update_time_labels(elapsed_sec);
-
-    if(elapsed_sec >= track_len_sec) {
-        is_paused = true;
-    }
 }
 
+
+
+
+// Function of prev, pause, and next buttons
 static void button_event_cb(lv_event_t * e)
 {
     const char * tag = (const char *)lv_event_get_user_data(e);
@@ -287,6 +371,7 @@ static void button_event_cb(lv_event_t * e)
     if(strcmp(tag, "prev") == 0) {
         elapsed_sec = 0;
         is_paused = false;
+        if(img_pause) lv_img_set_src(img_pause, is_paused ? &play : &paused);
         lv_slider_set_value(g_slider, 0, LV_ANIM_OFF);
         update_time_labels(0);
         restart_song_title(NULL);
@@ -301,17 +386,20 @@ static void button_event_cb(lv_event_t * e)
     else if(strcmp(tag, "next") == 0) {
         elapsed_sec = 0;
         is_paused = false;
+        if(img_pause) lv_img_set_src(img_pause, is_paused ? &play : &paused);
         lv_slider_set_value(g_slider, 0, LV_ANIM_OFF);
-        update_time_labels(0);
-        restart_song_title(NULL);
+        update_time_labels(0);restart_song_title(NULL);
         LV_LOG_USER("Next: slider + title reset");
     }
 }
 
+
+
+
+// Function to handle manual slider changes
 static void slider_event_cb(lv_event_t * e)
 {
     lv_obj_t * slider = lv_event_get_target_obj(e);
-    const int track_len_sec = 225;
     int32_t v    = lv_slider_get_value(slider);
     int32_t vmax = lv_slider_get_max_value(slider);
     int32_t seconds = (int32_t)((int64_t)v * track_len_sec / vmax);
@@ -319,72 +407,25 @@ static void slider_event_cb(lv_event_t * e)
     update_time_labels(seconds);
 }
 
-/**
-static void button_event_cb(lv_event_t * e)
-{
-    const char * tag = (const char *)lv_event_get_user_data(e);
-    if(!tag) return;
-
-    if(strcmp(tag, "prev") == 0) {
-        elapsed_sec = 0;
-        is_paused = false;
-        lv_slider_set_value(g_slider, 0, LV_ANIM_OFF);
-        lv_label_set_text(slider_label, "0:00");              // reset time label
-        restart_song_title(NULL);               // reset song title scroll
-        LV_LOG_USER("Prev: slider + title reset");
-    }
-    else if(strcmp(tag, "pause") == 0) {
-        is_paused = !is_paused;
-        LV_LOG_USER("Pause toggled. Now %s", is_paused ? "PAUSED" : "PLAYING");
-        lv_obj_set_style_bg_opa(g_slider, is_paused ? LV_OPA_80 : LV_OPA_COVER, LV_PART_INDICATOR);
-        if(img_pause) {
-            lv_img_set_src(img_pause, is_paused ? &play : &paused);
-        }
-
-    }
-    else if(strcmp(tag, "next") == 0) {
-        elapsed_sec = 0;
-        is_paused = false;
-        lv_slider_set_value(g_slider, 0, LV_ANIM_OFF);
-        lv_label_set_text(slider_label, "0:00");              // reset time label
-        restart_song_title(NULL);              // reset song title scroll
-        LV_LOG_USER("Next: slider + title reset");
-    }
-}
 
 
-static void slider_event_cb(lv_event_t * e)
-{
-    lv_obj_t * slider = lv_event_get_target_obj(e);
 
-    const int track_len_sec = 225; // 3:45
-    int32_t v      = lv_slider_get_value(slider);
-    int32_t vmax   = lv_slider_get_max_value(slider);   // now 1000
-    int32_t seconds = (int32_t)((int64_t)v * track_len_sec / vmax);
-    elapsed_sec = seconds; // sync if user drags
-
-    int mins = seconds / 60;
-    int secs = seconds % 60;
-    char buf[16];
-    lv_snprintf(buf, sizeof(buf), "%d:%02d", mins, secs);
-    lv_label_set_text(slider_label, buf);
-
-} */
-
-
-/**
- * A default slider with a label displaying the current value
- */
-
+// Main function to create the progress bar with labels and buttons
 void progress_bar(void)
 {
-    // Create a slider in the center of the display
+    // Create a slider in the lower center of the display
     slider = lv_slider_create(lv_screen_active());
     g_slider = slider;
     lv_obj_set_width(slider, 260);
     lv_obj_add_event_cb(slider, slider_event_cb, LV_EVENT_VALUE_CHANGED, NULL);
     lv_slider_set_range(slider, 0, 1000);
     lv_obj_set_style_anim_duration(slider, 2000, 0);
+
+    if(!progress_timer)
+        progress_timer = lv_timer_create(progress_timer_cb, 1000, NULL);
+
+
+
 
     // TICKER CONTAINER
     song_ticker = lv_obj_create(lv_screen_active());
@@ -430,7 +471,7 @@ void progress_bar(void)
     lv_obj_set_style_pad_right(song_ticker, 0, 0);
     lv_obj_set_style_pad_left(song_label, 0, 0);
     lv_obj_set_style_pad_right(song_label, 0, 0);
-    lv_obj_align(song_label, LV_ALIGN_LEFT_MID, 0, 0); // KEEP: internal positioning inside ticker
+    lv_obj_align(song_label, LV_ALIGN_LEFT_MID, 0, 0);
 
     start_song_ticker();
 
@@ -487,14 +528,16 @@ void progress_bar(void)
     lv_img_set_src(img_next, &next);
     lv_obj_center(img_next);
 
+
+
+
+    // Add resize event callback
     static bool resize_evt_added = false;
     if(!resize_evt_added) {
         resize_evt_added = true;
         lv_obj_add_event_cb(lv_screen_active(), screen_resize_cb, LV_EVENT_SIZE_CHANGED, NULL);
     }
 
-    if(!progress_timer)
-        progress_timer = lv_timer_create(progress_timer_cb, 1000, NULL);
 
 
     // After creating all related objects call:
