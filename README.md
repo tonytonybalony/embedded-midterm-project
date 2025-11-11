@@ -4,17 +4,13 @@
 
 | Element      | Widget              | Description                              |
 | ------------ | ------------------- | ---------------------------------------- |
-| Album Art    | `lv_img`            | Show a **rotating** image (album cover).        |
-| Song Title  (Done)| `lv_label`          | Large bold font **chyron** (e.g., “Night Sky”).      |
-| Artist Name  | `lv_label`          | Smaller gray text below the title.            |
-| Progress Bar (Done) | `lv_slider`         | Show playback progress.                   |
-| Time labels (Done) | `lv_label`          | “0:00” and “3:45” at both ends of the slider. |
-| Buttons    (Done)  | `lv_btn` + `lv_img` | Play / Pause / Next / Prev buttons.       |
-| Background (Done)  | `lv_obj`            | Apply gradient or dark theme.             |
-
-## Additional Idea
-
-"Translate on Scroll" from LVGL example for track queue.
+| Album Art  (Done) | `lv_img`            | Show album image.      |
+| Song Title  (Done)| `lv_label`          | Song title ticker.    |
+| Artist Name  (Done)| `lv_label`          | Smaller gray text below the title.            |
+| Progress Bar  (Done) | `lv_slider`         | Show playback progress.                   |
+| Time labels  (Done) | `lv_label`          | “0:00” and “3:45” at both ends of the slider. |
+| Buttons  (Done)  | `lv_btn` + `lv_img` | Play / Pause / Next / Prev buttons.       |
+| Background  (Done)  | `lv_obj`            | Apply gradient or dark theme.             |
 
 ## Implementation Steps Completed
 
@@ -82,3 +78,7 @@ Sequence of UI features implemented (see `lvgl/examples/mainfunction.c`):
 
   - Progress bar advances over time.
   - Time labels update with the progress bar.
+
+14. Chinese song title and artist name:
+
+  - Allow Chinese song title and Artist name.
