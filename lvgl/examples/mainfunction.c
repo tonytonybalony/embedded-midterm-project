@@ -7,6 +7,7 @@ INCLUDE FILES AND LIBRARIES
 #include "../../src/assets/icons/paused.c"
 #include "../../src/assets/icons/next.c"
 #include "../../src/assets/icons/previous.c"
+#include "../../src/assets/icons/play.c"
 #include <string.h>   // strcmp
 
 /*//////////////////////////////////////////////////////////////////////
@@ -17,6 +18,7 @@ DECLARATIONS
 LV_IMG_DECLARE(paused);
 LV_IMG_DECLARE(next);
 LV_IMG_DECLARE(previous);
+LV_IMG_DECLARE(play);
 
 /*//////////////////////////////////////////////////////////////////////
 REFERENCE FUNCTION
@@ -156,6 +158,8 @@ static lv_obj_t * btn_prev;
 static lv_obj_t * btn_pause;
 static lv_obj_t * btn_next;
 
+static lv_obj_t * img_pause;
+
 static bool is_paused = false;       // pause state
 
 static lv_obj_t * slider;
@@ -236,6 +240,10 @@ static void button_event_cb(lv_event_t * e)
         is_paused = !is_paused;
         LV_LOG_USER("Pause toggled. Now %s", is_paused ? "PAUSED" : "PLAYING");
         lv_obj_set_style_bg_opa(g_slider, is_paused ? LV_OPA_80 : LV_OPA_COVER, LV_PART_INDICATOR);
+
+        if(img_pause) {                                   // safety guard
+            lv_img_set_src(img_pause, is_paused ? &play : &paused);
+        }
     }
     else if(strcmp(tag, "next") == 0) {
         lv_slider_set_value(g_slider, 0, LV_ANIM_OFF);
@@ -347,7 +355,7 @@ void progress_bar(void)
     lv_obj_set_style_bg_opa(btn_pause, LV_OPA_TRANSP, 0);  // Make transparent
     lv_obj_set_style_radius(btn_pause, LV_RADIUS_CIRCLE, 0);  // Circle!
 
-    lv_obj_t * img_pause = lv_img_create(btn_pause);
+    img_pause = lv_img_create(btn_pause);
     lv_img_set_src(img_pause, &paused);
     lv_obj_center(img_pause);
 

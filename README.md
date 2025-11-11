@@ -69,9 +69,13 @@ Sequence of UI features implemented (see `lvgl/examples/mainfunction.c`):
 
   - Reorder function and add new comment.
 
+11. Upgrade Pause Button
+
+  - The icon of the pause button now switch between play and pause.
+
+12.
 
 ## Next Enhancements (Ideas)
 
 - Rotating album art (`lv_img` with animation).
-- Button state change (pause vs play image swap). Using toggle button
 - Track queue scroll effect ("Translate on Scroll" idea above).
