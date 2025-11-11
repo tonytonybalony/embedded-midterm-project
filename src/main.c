@@ -54,37 +54,37 @@
 
 #if LV_USE_OS != LV_OS_FREERTOS
 
-int main(int argc, char **argv)
-{
-  (void)argc; /*Unused*/
-  (void)argv; /*Unused*/
+  int main(int argc, char **argv)
+  {
+    (void)argc; /*Unused*/
+    (void)argv; /*Unused*/
 
-  /*Initialize LVGL*/
-  lv_init();
+    /*Initialize LVGL*/
+    lv_init();
 
-  /*Initialize the HAL (display, input devices, tick) for LVGL*/
-  sdl_hal_init(450, 600);
+    /*Initialize the HAL (display, input devices, tick) for LVGL*/
+    sdl_hal_init(450, 600);
 
 
-  radial_gradient_background();
-  progress_bar();
+    radial_gradient_background();
+    progress_bar();
 
-  while(1) {
-    /* Periodically call the lv_task handler.
-     * It could be done in a timer interrupt or an OS task too.*/
-    uint32_t sleep_time_ms = lv_timer_handler();
-    if(sleep_time_ms == LV_NO_TIMER_READY){
+    while(1) {
+      /* Periodically call the lv_task handler.
+       * It could be done in a timer interrupt or an OS task too.*/
+      uint32_t sleep_time_ms = lv_timer_handler();
+      if(sleep_time_ms == LV_NO_TIMER_READY){
 	    sleep_time_ms =  LV_DEF_REFR_PERIOD;
     }
-    #ifdef _MSC_VER
-      Sleep(sleep_time_ms);
-    #else
-      usleep(sleep_time_ms * 1000);
-    #endif
-  }
+      #ifdef _MSC_VER
+        Sleep(sleep_time_ms);
+      #else
+        usleep(sleep_time_ms * 1000);
+      #endif
+    }
 
-  return 0;
-}
+    return 0;
+  }
 
 #endif
 
