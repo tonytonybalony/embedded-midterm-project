@@ -8,6 +8,7 @@ INCLUDE FILES AND LIBRARIES
 #include "../../src/assets/icons/next.c"
 #include "../../src/assets/icons/previous.c"
 #include "../../src/assets/icons/play.c"
+#include "../../src/assets/icons/gnx_cover.c"
 #include <string.h>   // strcmp
 
 /*//////////////////////////////////////////////////////////////////////
@@ -19,6 +20,7 @@ LV_IMG_DECLARE(paused);
 LV_IMG_DECLARE(next);
 LV_IMG_DECLARE(previous);
 LV_IMG_DECLARE(play);
+LV_IMG_DECLARE(gnx_cover);
 
 /*//////////////////////////////////////////////////////////////////////
 REFERENCE FUNCTION
@@ -159,11 +161,35 @@ static lv_obj_t * btn_pause;
 static lv_obj_t * btn_next;
 
 static lv_obj_t * img_pause;
-
+static lv_obj_t * album_img;         // Add static declaration with other statics
 static bool is_paused = false;       // pause state
+
+
+static const int track_len_sec = 225;          // total length (3:45)
+static int elapsed_sec = 0;                    // elapsed seconds
+static lv_timer_t * progress_timer;            // timer advancing progress
+
 
 static lv_obj_t * slider;
 
+/**
+static void progress_timer_cb(lv_timer_t * t)
+{
+    LV_UNUSED(t);
+    if(is_paused) return;
+    if(elapsed_sec >= track_len_sec) return;
+
+    elapsed_sec++;
+
+    int32_t vmax = lv_slider_get_max_value(g_slider);
+    int32_t v = (int32_t)((int64_t)elapsed_sec * vmax / track_len_sec);
+    lv_slider_set_value(g_slider, v, LV_ANIM_OFF);
+
+    if(elapsed_sec >= track_len_sec) {
+        is_paused = true; // stop at end
+    }
+}
+ */
 
 static void layout_update(void)
 {
@@ -175,11 +201,28 @@ static void layout_update(void)
     if(btn_prev && slider)  lv_obj_align_to(btn_prev,  slider, LV_ALIGN_OUT_BOTTOM_LEFT, 10, 40);
     if(btn_pause && slider) lv_obj_align_to(btn_pause, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 40);
     if(btn_next && slider)  lv_obj_align_to(btn_next,  slider, LV_ALIGN_OUT_BOTTOM_RIGHT, -10, 40);
+    // Adjust album image vertical offset (was -20, too far up)
+    // Use a small positive value to move it closer to the slider
+    if(album_img && slider) lv_obj_align_to(album_img, slider, LV_ALIGN_OUT_TOP_MID, 0, -120);
+
+}
+
+// Hide/show album based on current display height
+static void update_album_visibility(void)
+{
+    if(!album_img) return;
+    int32_t h = lv_display_get_vertical_resolution(NULL);
+    if(h < 450) {
+        lv_obj_add_flag(album_img, LV_OBJ_FLAG_HIDDEN);
+    } else {
+        lv_obj_clear_flag(album_img, LV_OBJ_FLAG_HIDDEN);
+    }
 }
 
 static void screen_resize_cb(lv_event_t * e)
 {
     LV_UNUSED(e);
+    update_album_visibility();
     layout_update();
 }
 
@@ -225,12 +268,83 @@ static void restart_song_title(const char * title)
     start_song_ticker();
 }
 
+static void update_time_labels(int seconds)
+{
+    if(slider_label) {
+        int mins = seconds / 60;
+        int secs = seconds % 60;
+        char buf[16];
+        lv_snprintf(buf, sizeof(buf), "%d:%02d", mins, secs);
+        lv_label_set_text(slider_label, buf);
+    }
+}
+
+static void progress_timer_cb(lv_timer_t * t)
+{
+    LV_UNUSED(t);
+    if(is_paused) return;
+    if(elapsed_sec >= track_len_sec) return;
+
+    elapsed_sec++;
+    int32_t vmax = lv_slider_get_max_value(g_slider);
+    int32_t v = (int32_t)((int64_t)elapsed_sec * vmax / track_len_sec);
+    lv_slider_set_value(g_slider, v, LV_ANIM_OFF); // still fires VALUE_CHANGED
+    update_time_labels(elapsed_sec);
+
+    if(elapsed_sec >= track_len_sec) {
+        is_paused = true;
+    }
+}
+
 static void button_event_cb(lv_event_t * e)
 {
     const char * tag = (const char *)lv_event_get_user_data(e);
     if(!tag) return;
 
     if(strcmp(tag, "prev") == 0) {
+        elapsed_sec = 0;
+        is_paused = false;
+        lv_slider_set_value(g_slider, 0, LV_ANIM_OFF);
+        update_time_labels(0);
+        restart_song_title(NULL);
+        LV_LOG_USER("Prev: slider + title reset");
+    }
+    else if(strcmp(tag, "pause") == 0) {
+        is_paused = !is_paused;
+        LV_LOG_USER("Pause toggled. Now %s", is_paused ? "PAUSED" : "PLAYING");
+        lv_obj_set_style_bg_opa(g_slider, is_paused ? LV_OPA_80 : LV_OPA_COVER, LV_PART_INDICATOR);
+        if(img_pause) lv_img_set_src(img_pause, is_paused ? &play : &paused);
+    }
+    else if(strcmp(tag, "next") == 0) {
+        elapsed_sec = 0;
+        is_paused = false;
+        lv_slider_set_value(g_slider, 0, LV_ANIM_OFF);
+        update_time_labels(0);
+        restart_song_title(NULL);
+        LV_LOG_USER("Next: slider + title reset");
+    }
+}
+
+static void slider_event_cb(lv_event_t * e)
+{
+    lv_obj_t * slider = lv_event_get_target_obj(e);
+    const int track_len_sec = 225;
+    int32_t v    = lv_slider_get_value(slider);
+    int32_t vmax = lv_slider_get_max_value(slider);
+    int32_t seconds = (int32_t)((int64_t)v * track_len_sec / vmax);
+    elapsed_sec = seconds;
+    update_time_labels(seconds);
+}
+
+/**
+static void button_event_cb(lv_event_t * e)
+{
+    const char * tag = (const char *)lv_event_get_user_data(e);
+    if(!tag) return;
+
+    if(strcmp(tag, "prev") == 0) {
+        elapsed_sec = 0;
+        is_paused = false;
         lv_slider_set_value(g_slider, 0, LV_ANIM_OFF);
         lv_label_set_text(slider_label, "0:00");              // reset time label
         restart_song_title(NULL);               // reset song title scroll
@@ -240,13 +354,14 @@ static void button_event_cb(lv_event_t * e)
         is_paused = !is_paused;
         LV_LOG_USER("Pause toggled. Now %s", is_paused ? "PAUSED" : "PLAYING");
         lv_obj_set_style_bg_opa(g_slider, is_paused ? LV_OPA_80 : LV_OPA_COVER, LV_PART_INDICATOR);
-
         if(img_pause) {
             lv_img_set_src(img_pause, is_paused ? &play : &paused);
         }
 
     }
     else if(strcmp(tag, "next") == 0) {
+        elapsed_sec = 0;
+        is_paused = false;
         lv_slider_set_value(g_slider, 0, LV_ANIM_OFF);
         lv_label_set_text(slider_label, "0:00");              // reset time label
         restart_song_title(NULL);              // reset song title scroll
@@ -263,13 +378,15 @@ static void slider_event_cb(lv_event_t * e)
     int32_t v      = lv_slider_get_value(slider);
     int32_t vmax   = lv_slider_get_max_value(slider);   // now 1000
     int32_t seconds = (int32_t)((int64_t)v * track_len_sec / vmax);
+    elapsed_sec = seconds; // sync if user drags
 
     int mins = seconds / 60;
     int secs = seconds % 60;
     char buf[16];
     lv_snprintf(buf, sizeof(buf), "%d:%02d", mins, secs);
     lv_label_set_text(slider_label, buf);
-}
+
+} */
 
 
 /**
@@ -309,6 +426,18 @@ void progress_bar(void)
 
     /* Start ticker after label width is known */
     start_song_ticker();
+
+
+
+
+
+
+    album_img = lv_img_create(lv_screen_active());
+    lv_img_set_src(album_img, &gnx_cover);
+    lv_obj_align_to(album_img, slider, LV_ALIGN_OUT_TOP_MID, 0, -100);
+
+
+
 
 
 
@@ -383,6 +512,14 @@ void progress_bar(void)
         lv_obj_add_event_cb(lv_screen_active(), screen_resize_cb, LV_EVENT_SIZE_CHANGED, NULL);
     }
 
+    if(!progress_timer)
+        progress_timer = lv_timer_create(progress_timer_cb, 1000, NULL);
+
+
     // After creating all related objects call:
     layout_update();
+
+    // Ensure correct initial visibility based on current height
+    update_album_visibility();
+
 }
