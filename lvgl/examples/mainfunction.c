@@ -151,18 +151,10 @@ PROGRESS BAR WITH LABELS AND BUTTONS FUNCTION
 //////////////////////////////////////////////////////////////////////*/
 
 
-
-
-
-
-
-
-
-
-
 static void slider_event_cb(lv_event_t * e);
-static lv_obj_t * slider_label;
-static lv_obj_t * slider_label2;
+static lv_obj_t * slider;            // progress slider
+static lv_obj_t * slider_label;      // time elapsed label
+static lv_obj_t * slider_label2;     // total time label
 static lv_obj_t * g_slider;          // store slider for button control
 static lv_obj_t * song_ticker;       // container
 static lv_obj_t * song_label;        // text
@@ -170,54 +162,33 @@ static lv_obj_t * artist_label;      // smaller grey text below title
 static lv_obj_t * btn_prev;
 static lv_obj_t * btn_pause;
 static lv_obj_t * btn_next;
-
 static lv_obj_t * img_pause;
-static lv_obj_t * album_img;         // Add static declaration with other statics
+static lv_obj_t * album_img;
 static bool is_paused = false;       // pause state
 
 
+
+// Timer Declarations
 static const int track_len_sec = 225;          // total length (3:45)
 static int elapsed_sec = 0;                    // elapsed seconds
 static lv_timer_t * progress_timer;            // timer advancing progress
 
 
-static lv_obj_t * slider;
 
-/**
-static void progress_timer_cb(lv_timer_t * t)
-{
-    LV_UNUSED(t);
-    if(is_paused) return;
-    if(elapsed_sec >= track_len_sec) return;
-
-    elapsed_sec++;
-
-    int32_t vmax = lv_slider_get_max_value(g_slider);
-    int32_t v = (int32_t)((int64_t)elapsed_sec * vmax / track_len_sec);
-    lv_slider_set_value(g_slider, v, LV_ANIM_OFF);
-
-    if(elapsed_sec >= track_len_sec) {
-        is_paused = true; // stop at end
-    }
-}
- */
 
 static void layout_update(void)
 {
     LV_LOG_INFO("Layout update called");
-    if(slider)  lv_obj_align(slider, LV_ALIGN_BOTTOM_MID, 0, -120);
-    if(song_ticker && slider) lv_obj_align_to(song_ticker, slider, LV_ALIGN_OUT_TOP_MID, 0, -12);
+    if(slider)                      lv_obj_align(slider, LV_ALIGN_BOTTOM_MID, 0, -120);
+    if(song_ticker && slider)       lv_obj_align_to(song_ticker, slider, LV_ALIGN_OUT_TOP_MID, 0, -12);
     if(artist_label && song_ticker) lv_obj_align_to(artist_label, song_ticker, LV_ALIGN_OUT_BOTTOM_MID, 0, 4);
-    if(slider_label && slider)  lv_obj_align_to(slider_label,  slider, LV_ALIGN_OUT_BOTTOM_LEFT, -10, 10);
-    if(slider_label2 && slider) lv_obj_align_to(slider_label2, slider, LV_ALIGN_OUT_BOTTOM_RIGHT, 10, 10);
-    if(btn_prev && slider)  lv_obj_align_to(btn_prev,  slider, LV_ALIGN_OUT_BOTTOM_LEFT, 10, 40);
-    if(btn_pause && slider) lv_obj_align_to(btn_pause, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 40);
-    if(btn_next && slider)  lv_obj_align_to(btn_next,  slider, LV_ALIGN_OUT_BOTTOM_RIGHT, -10, 40);
-    // Adjust album image vertical offset (was -20, too far up)
-    // Use a small positive value to move it closer to the slider
-    if(album_img && slider) lv_obj_align_to(album_img, slider, LV_ALIGN_OUT_TOP_MID, 0, -120);
+    if(slider_label && slider)      lv_obj_align_to(slider_label,  slider, LV_ALIGN_OUT_BOTTOM_LEFT, -10, 10);
+    if(slider_label2 && slider)     lv_obj_align_to(slider_label2, slider, LV_ALIGN_OUT_BOTTOM_RIGHT, 10, 10);
+    if(btn_prev && slider)          lv_obj_align_to(btn_prev,  slider, LV_ALIGN_OUT_BOTTOM_LEFT, 10, 40);
+    if(btn_pause && slider)         lv_obj_align_to(btn_pause, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 40);
+    if(btn_next && slider)          lv_obj_align_to(btn_next,  slider, LV_ALIGN_OUT_BOTTOM_RIGHT, -10, 40);
+    if(album_img && slider)         lv_obj_align_to(album_img, slider, LV_ALIGN_OUT_TOP_MID, 0, -120);
     if(artist_label && song_ticker) lv_obj_align_to(artist_label, song_ticker, LV_ALIGN_OUT_BOTTOM_LEFT, 0, -10);
-
 }
 
 // Hide/show album based on current display height
@@ -246,7 +217,7 @@ static void screen_resize_cb(lv_event_t * e)
 
 static void start_song_ticker(void)
 {
-    /* Ensure sizes are computed */
+    // Ensure sizes are computed
     lv_obj_update_layout(song_ticker);
 
     int w_text = lv_obj_get_width(song_label);
@@ -313,7 +284,6 @@ static void button_event_cb(lv_event_t * e)
 {
     const char * tag = (const char *)lv_event_get_user_data(e);
     if(!tag) return;
-
     if(strcmp(tag, "prev") == 0) {
         elapsed_sec = 0;
         is_paused = false;
@@ -409,7 +379,6 @@ static void slider_event_cb(lv_event_t * e)
 void progress_bar(void)
 {
     // Create a slider in the center of the display
-
     slider = lv_slider_create(lv_screen_active());
     g_slider = slider;
     lv_obj_set_width(slider, 260);
@@ -417,40 +386,32 @@ void progress_bar(void)
     lv_slider_set_range(slider, 0, 1000);
     lv_obj_set_style_anim_duration(slider, 2000, 0);
 
-
-
-
-
-
     // TICKER CONTAINER
     song_ticker = lv_obj_create(lv_screen_active());
     lv_obj_set_size(song_ticker, lv_obj_get_width(slider), LV_SIZE_CONTENT);
     lv_obj_clear_flag(song_ticker, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_style_bg_opa(song_ticker, LV_OPA_TRANSP, 0);
     lv_obj_set_style_border_opa(song_ticker, LV_OPA_TRANSP, 0);
-    lv_obj_align_to(song_ticker, slider, LV_ALIGN_OUT_TOP_MID, 0, -12);
 
     lv_font_t * font = lv_freetype_font_create("./lvgl/examples/libs/freetype/NotoSerifCJK-Regular.ttc",
                                                LV_FREETYPE_FONT_RENDER_MODE_BITMAP,
                                                12,
                                                LV_FREETYPE_FONT_STYLE_NORMAL);
-
     if(!font) {
         LV_LOG_ERROR("freetype font create failed.");
         return;
     }
 
     lv_font_t * fontlarge = lv_freetype_font_create("./lvgl/examples/libs/freetype/NotoSerifCJK-Regular.ttc",
-                                               LV_FREETYPE_FONT_RENDER_MODE_BITMAP,
-                                               20,
-                                               LV_FREETYPE_FONT_STYLE_NORMAL);
-
+                                                    LV_FREETYPE_FONT_RENDER_MODE_BITMAP,
+                                                    20,
+                                                    LV_FREETYPE_FONT_STYLE_NORMAL);
     if(!fontlarge) {
-        LV_LOG_ERROR("freetype font create failed.");
+        LV_LOG_ERROR("freetype fontlarge create failed.");
         return;
     }
 
-    /*Create style with the new font*/
+
     static lv_style_t style;
     lv_style_init(&style);
     lv_style_set_text_font(&style, font);
@@ -459,109 +420,72 @@ void progress_bar(void)
     lv_style_init(&stylelarge);
     lv_style_set_text_font(&stylelarge, fontlarge);
 
-
     // Song title label
     song_label = lv_label_create(song_ticker);
     lv_obj_set_width(song_label, LV_SIZE_CONTENT);
     lv_label_set_long_mode(song_label, LV_LABEL_LONG_CLIP);
     lv_obj_add_style(song_label, &stylelarge, 0);
     lv_label_set_text(song_label, "dodger blue - (feat. Wallie the Sensei, Siete7x & Roddy Ricch)");
-    // Remove any left padding (avoid a “tab” look when not moving)
     lv_obj_set_style_pad_left(song_ticker, 0, 0);
     lv_obj_set_style_pad_right(song_ticker, 0, 0);
     lv_obj_set_style_pad_left(song_label, 0, 0);
     lv_obj_set_style_pad_right(song_label, 0, 0);
-    lv_obj_align(song_label, LV_ALIGN_LEFT_MID, 0, 0);
+    lv_obj_align(song_label, LV_ALIGN_LEFT_MID, 0, 0); // KEEP: internal positioning inside ticker
 
-
-    /* Start ticker after label width is known */
     start_song_ticker();
-
-
-
-
 
     // Artist label below the song title (smaller, grey)
     artist_label = lv_label_create(lv_screen_active());
     lv_obj_add_style(artist_label, &style, 0);
     lv_label_set_text(artist_label, "Kendrick Lamar");
-    lv_obj_set_style_text_color(artist_label, lv_color_hex(0x777777), 0);
-
-
+    lv_obj_set_style_text_color(artist_label, lv_color_hex(0x555555), 0);
 
     album_img = lv_img_create(lv_screen_active());
     lv_img_set_src(album_img, &gnx_cover);
-    lv_obj_align_to(album_img, slider, LV_ALIGN_OUT_TOP_MID, 0, -100);
 
-
-
-
-
-
-
-    // Set slider background (track) to medium grey
+    // Slider styles
     lv_obj_set_style_bg_color(slider, lv_color_hex(0x999999), LV_PART_MAIN);
-
-    // Set slider bar (filled portion) to light grey
     lv_obj_set_style_bg_color(slider, lv_color_hex(0xD9D9D9), LV_PART_INDICATOR);
-
-    // Hide the knob by making it transparent and size 0
     lv_obj_set_style_opa(slider, LV_OPA_TRANSP, LV_PART_KNOB);
 
-    // Create labels below / beside the slider
+    // Labels
     slider_label = lv_label_create(lv_screen_active());
     lv_label_set_text(slider_label, "0:00");
-
     slider_label2 = lv_label_create(lv_screen_active());
     lv_label_set_text(slider_label2, "3:45");
 
-    // Align labels once at creation
-    lv_obj_align_to(slider_label, slider, LV_ALIGN_OUT_BOTTOM_LEFT, -10, 10);
-    lv_obj_align_to(slider_label2, slider, LV_ALIGN_OUT_BOTTOM_RIGHT, 10, 10);
-
-    /* Create three image buttons under the progress bar */
-
-
     // PREVIOUS BUTTON
     btn_prev = lv_btn_create(lv_screen_active());
-    lv_obj_set_size(btn_prev, 50, 50);  // Make it square first
+    lv_obj_set_size(btn_prev, 50, 50);
     lv_obj_add_event_cb(btn_prev, button_event_cb, LV_EVENT_CLICKED, (void*)"prev");
     lv_obj_set_style_bg_color(btn_prev, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_set_style_bg_opa(btn_prev, LV_OPA_TRANSP, 0);  // Make transparent
-    lv_obj_set_style_radius(btn_prev, LV_RADIUS_CIRCLE, 0);  // Circle!
-
+    lv_obj_set_style_bg_opa(btn_prev, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_radius(btn_prev, LV_RADIUS_CIRCLE, 0);
     lv_obj_t * img_prev = lv_img_create(btn_prev);
     lv_img_set_src(img_prev, &previous);
     lv_obj_center(img_prev);
 
     // PAUSE BUTTON
     btn_pause = lv_btn_create(lv_screen_active());
-    lv_obj_set_size(btn_pause, 50, 50);  // Make it square
+    lv_obj_set_size(btn_pause, 50, 50);
     lv_obj_add_event_cb(btn_pause, button_event_cb, LV_EVENT_CLICKED, (void*)"pause");
     lv_obj_set_style_bg_color(btn_pause, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_set_style_bg_opa(btn_pause, LV_OPA_TRANSP, 0);  // Make transparent
-    lv_obj_set_style_radius(btn_pause, LV_RADIUS_CIRCLE, 0);  // Circle!
-
+    lv_obj_set_style_bg_opa(btn_pause, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_radius(btn_pause, LV_RADIUS_CIRCLE, 0);
     img_pause = lv_img_create(btn_pause);
     lv_img_set_src(img_pause, &paused);
     lv_obj_center(img_pause);
 
     // NEXT BUTTON
     btn_next = lv_btn_create(lv_screen_active());
-    lv_obj_set_size(btn_next, 50, 50);  // Make it square
+    lv_obj_set_size(btn_next, 50, 50);
     lv_obj_add_event_cb(btn_next, button_event_cb, LV_EVENT_CLICKED, (void*)"next");
     lv_obj_set_style_bg_color(btn_next, lv_color_hex(0xFFFFFF), 0);
-    lv_obj_set_style_bg_opa(btn_next, LV_OPA_TRANSP, 0);  // Make transparent
-    lv_obj_set_style_radius(btn_next, LV_RADIUS_CIRCLE, 0);  // Circle!
-
+    lv_obj_set_style_bg_opa(btn_next, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_radius(btn_next, LV_RADIUS_CIRCLE, 0);
     lv_obj_t * img_next = lv_img_create(btn_next);
     lv_img_set_src(img_next, &next);
     lv_obj_center(img_next);
-
-
-
-
-
 
     static bool resize_evt_added = false;
     if(!resize_evt_added) {
@@ -578,5 +502,4 @@ void progress_bar(void)
 
     // Ensure correct initial visibility based on current height
     update_album_visibility();
-
 }
