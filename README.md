@@ -78,4 +78,3 @@ Sequence of UI features implemented (see `lvgl/examples/mainfunction.c`):
 ## Next Enhancements (Ideas)
 
 - Rotating album art (`lv_img` with animation).
-- Track queue scroll effect ("Translate on Scroll" idea above).

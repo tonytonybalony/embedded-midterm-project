@@ -241,9 +241,10 @@ static void button_event_cb(lv_event_t * e)
         LV_LOG_USER("Pause toggled. Now %s", is_paused ? "PAUSED" : "PLAYING");
         lv_obj_set_style_bg_opa(g_slider, is_paused ? LV_OPA_80 : LV_OPA_COVER, LV_PART_INDICATOR);
 
-        if(img_pause) {                                   // safety guard
+        if(img_pause) {
             lv_img_set_src(img_pause, is_paused ? &play : &paused);
         }
+
     }
     else if(strcmp(tag, "next") == 0) {
         lv_slider_set_value(g_slider, 0, LV_ANIM_OFF);
