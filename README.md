@@ -1,5 +1,9 @@
 # Midterm Project for Embedded System Design
 
+
+[Music Player UI](https://youtu.be/KYRLsjRgu-M?feature=shared)
+
+
 ## Music Player UI Mockup
 
 | Element      | Widget              | Description                              |
