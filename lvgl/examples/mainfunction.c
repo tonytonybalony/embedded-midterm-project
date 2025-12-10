@@ -9,7 +9,6 @@ INCLUDE FILES AND LIBRARIES
 #include "../../src/assets/icons/previous.c"
 #include "../../src/assets/icons/play.c"
 #include "../../src/assets/icons/gnx_cover.c"
-#include "../../src/assets/icons/sss4u.c"
 #include <string.h>   // strcmp
 
 /*//////////////////////////////////////////////////////////////////////
@@ -22,7 +21,6 @@ LV_IMG_DECLARE(next);
 LV_IMG_DECLARE(previous);
 LV_IMG_DECLARE(play);
 LV_IMG_DECLARE(gnx_cover);
-LV_IMG_DECLARE(sss4u);
 
 /*//////////////////////////////////////////////////////////////////////
 REFERENCE FUNCTION
@@ -468,7 +466,7 @@ void progress_bar(void)
     lv_obj_set_width(song_label, LV_SIZE_CONTENT);
     lv_label_set_long_mode(song_label, LV_LABEL_LONG_CLIP);
     lv_obj_add_style(song_label, &stylelarge, 0);
-    lv_label_set_text(song_label, "名字很長的中文歌示範 - 示範歌曲名稱很長的歌曲名稱");
+    lv_label_set_text(song_label, "dodger blue - (feat. Wallie the Sensei, Siete7x & Roddy Ricch)");
     lv_obj_set_style_pad_left(song_ticker, 0, 0);
     lv_obj_set_style_pad_right(song_ticker, 0, 0);
     lv_obj_set_style_pad_left(song_label, 0, 0);
@@ -480,11 +478,11 @@ void progress_bar(void)
     // Artist label below the song title (smaller, grey)
     artist_label = lv_label_create(lv_screen_active());
     lv_obj_add_style(artist_label, &style, 0);
-    lv_label_set_text(artist_label, "蔡英文");
+    lv_label_set_text(artist_label, "Kendrick Lamar");
     lv_obj_set_style_text_color(artist_label, lv_color_hex(0x555555), 0);
 
     album_img = lv_img_create(lv_screen_active());
-    lv_img_set_src(album_img, &sss4u);
+    lv_img_set_src(album_img, &gnx_cover);
 
     // Slider styles
     lv_obj_set_style_bg_color(slider, lv_color_hex(0x999999), LV_PART_MAIN);

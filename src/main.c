@@ -65,19 +65,9 @@
     /*Initialize the HAL (display, input devices, tick) for LVGL*/
     sdl_hal_init(450, 600);
 
-    /* MIDTERM PROJECT FUNCTION */
-    //radial_gradient_background();
-    //progress_bar();
 
-
-
-
-
-
-
-
-
-
+    radial_gradient_background();
+    progress_bar();
 
     while(1) {
       /* Periodically call the lv_task handler.
